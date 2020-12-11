@@ -1,0 +1,10 @@
+---
+
+- name: Create UUID for vGPU
+  set_fact:
+    uuid: "{{ ansible_date_time.iso8601_micro | to_uuid }}"
+
+- name: Assign UUID to /create file inside /sys to create vGPU
+  shell:
+    cmd: echo "{{ uuid }}" > /create
+    chdir: "/sys/class/mdev_bus/0000:{{ bdf_var.stdout }}/mdev_supported_types/{{ vgpu_type_subdirectory.stdout | replace('/name', '') }}"

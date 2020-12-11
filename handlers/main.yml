@@ -1,0 +1,5 @@
+---
+# handlers file for rd-ansible-vgpu
+
+- name: reboot handler
+  command: systemctl reboot

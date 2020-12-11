@@ -1,0 +1,65 @@
+---
+# tasks file for rd-ansible-vgpu
+
+- name: Find version of GCC used to compile kernel
+  shell: cat /proc/version | grep -Eo 'gcc version [0-9]+\.[0-9]+\.[0-9]+' | cut -d ' ' -f 3
+  register: kernel_gcc_version
+
+- name: Find version of GCC installed
+  shell: gcc --version | grep -Eo "[0-9]\.[0-9]\.[0-9]" | head -n 1
+  register: installed_gcc_version
+
+- name: Fail if GCC versions are not equal
+  fail:
+    msg: "GCC mismatch between version used for Kernel Compilation: {{ kernel_gcc_version.stdout }}
+          and System GCC version: {{ installed_gcc_version.stdout }}. Set 'vgpu_force_install: True'
+          to ignore this difference. You may want to run a dist-upgrade on the host machine in case this
+          recitifes the issue."
+  when:
+    - kernel_gcc_version.stdout != installed_gcc_version.stdout
+    - not vgpu_force_install
+
+- name: Find linux header value
+  command: uname -r
+  register: kernel_version
+
+- name: Install debian packages
+  apt:
+    name: 
+      "{{ vgpu_debian_packages + ['linux-headers-' + kernel_version.stdout] }}"
+
+# - name: Download vGPU Zip file containing vGPU Manager and Drivers
+#   get_url:
+#     url: "{{ vgpu_driver_url }}/{{ vgpu_zip_file }}"
+#     dest: "{{ vgpu_install_path }}"
+#     validate_certs: no
+
+- name: Unzip NVIDIA Zip File
+  unarchive:
+    src: "{{ vgpu_install_path }}/{{ vgpu_zip_file }}"
+    dest: "{{ vgpu_install_path }}"
+    mode: 774
+    creates: "{{ vgpu_install_path }}/{{ vgpu_manager_file }}"
+
+- name: get service facts
+  service_facts:
+  no_log: true
+
+- set_fact:
+    vgpu_manager_installed: "{{ 'nvidia-vgpu-mgr.service' in ansible_facts.services }}"
+
+- name: Run vGPU Manager for KVM
+  shell: 
+    cmd: "./{{ vgpu_manager_file }} {{ vgpu_manager_file_flags | join(' ') }}"
+    executable: /bin/sh
+    chdir: "{{ vgpu_install_path }}"
+  when : not vgpu_manager_installed
+  notify: reboot handler
+
+- name: Check vGPU Manager Service is Started
+  systemd:
+    name: nvidia-vgpu-mgr.service
+    state: started
+
+- name: Verify running "nvidia-smi" command doesn't fail
+  shell: nvidia-smi

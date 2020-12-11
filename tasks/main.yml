@@ -1,0 +1,8 @@
+---
+# tasks file for rd-ansible-vgpu
+
+- name: Install Packages and NVIDIA vGPU Manager
+  include_tasks: install.yml
+
+- name: Configure vGPUs
+  include_tasks: configure.yml
