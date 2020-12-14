@@ -26,11 +26,6 @@
   register: vgpu_max_instances
   changed_when: false
 
-# Creates individual vGPU instances - Nove can handle this for us so we don't have to
-# - name: "Create {{ vgpu_max_instances.stdout }} instances of Virtual GPU Type: {{ vgpu_type }}"
-#   include_tasks: create_vgpu.yml
-#   with_sequence: "count={{ vgpu_max_instances.stdout }}"
-
 - name: List created vGPU UUID's
   shell: ls -l /sys/bus/mdev/devices/
   register: vgpu_uuids
