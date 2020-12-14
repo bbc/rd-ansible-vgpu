@@ -14,7 +14,7 @@ vgpu_zip_file: NVIDIA-GRID-Linux-KVM-{{ vpgu_driver_version }}-452.57
 vgpu_driver_file: "NVIDIA-Linux-x86_64-{{ vpgu_driver_version }}-grid.run"
 vgpu_manager_file: "NVIDIA-Linux-x86_64-{{ vpgu_driver_version }}-vgpu-kvm.run"
 vgpu_manager_file_flags:
-  # - -s  # silent mode (say yes to options, no GUI)
+  - -s  # silent mode (say yes to options, no GUI)
   - --no-cc-version-check  # ignore mismatch between GCC versions
 vgpu_force_install: true
 

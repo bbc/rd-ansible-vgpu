@@ -2,35 +2,36 @@
 - name: Get Bus:Device:Function of NVIDIA Driver
   shell: lspci | grep NVIDIA | cut -d " " -f 1
   register: bdf_var
+  changed_when: false
 
 - name: Get Full ID of GPU from PCI BDF
   shell: "virsh nodedev-list --cap pci | grep {{ bdf_var.stdout | regex_replace('^([0-9a-z]+):([0-9a-z]+)\\.([0-9])', '\\1_\\2_\\3') }}"
   register: gpu_id
+  changed_when: false
 
-- name: Enable Virtual Function (VF) using SRIOV Manage Tool
-  shell: "/usr/lib/nvidia/sriov-manage -e {{ gpu_id.stdout | regex_replace('^pci_([0-9]+)_([0-9a-z]+)_([0-9a-z]+)_([a-z])', '\\3:\\2:\\1\\.\\4') }}"
+# - name: Enable Virtual Function (VF) using SRIOV Manage Tool
+#   shell: "/usr/lib/nvidia/sriov-manage -e {{ gpu_id.stdout | regex_replace('^pci_([0-9a-z]+)_([0-9a-z]+)_([0-9a-z]+)_([0-9a-z])', '\\3:\\2:\\1\\.\\4') }}"
 
-- name: "Find subdirectory that corresponds to GPU Type: {{ vgpu_Type }}"
+- name: "Find subdirectory that corresponds to GPU Type: {{ vgpu_type }}"
   shell:
     cmd: grep -l "{{ vgpu_type }}" nvidia-*/name
     chdir: "/sys/class/mdev_bus/0000:{{ bdf_var.stdout }}/mdev_supported_types/"
   register: vgpu_type_subdirectory
+  changed_when: false
 
 - name: "Get maximum number of GPUs that can be made for type: {{ vgpu_type }}"
   shell:
     cmd: cat available_instances
     chdir: "/sys/class/mdev_bus/0000:{{ bdf_var.stdout }}/mdev_supported_types/{{ vgpu_type_subdirectory.stdout | replace('/name', '') }}"
   register: vgpu_max_instances
+  changed_when: false
 
-- name: "Create {{ vgpu_max_instances.stdout }} instances of Virtual GPU Type: {{ vgpu_type }}"
-  include_tasks: create_vgpu.yml
-  with_sequence: "count={{ vgpu_max_instances.stdout }}"
+# Creates individual vGPU instances - Nove can handle this for us so we don't have to
+# - name: "Create {{ vgpu_max_instances.stdout }} instances of Virtual GPU Type: {{ vgpu_type }}"
+#   include_tasks: create_vgpu.yml
+#   with_sequence: "count={{ vgpu_max_instances.stdout }}"
 
 - name: List created vGPU UUID's
   shell: ls -l /sys/bus/mdev/devices/
   register: vgpu_uuids
-
-- name: "Fail when 0 vGPUs have been created"
-  fail:
-    msg: "Number of vGPUs created is 0"
-  when: vgpu_uuids.stdout is search('total 0')
+  changed_when: false

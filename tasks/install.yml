@@ -4,10 +4,12 @@
 - name: Find version of GCC used to compile kernel
   shell: cat /proc/version | grep -Eo 'gcc version [0-9]+\.[0-9]+\.[0-9]+' | cut -d ' ' -f 3
   register: kernel_gcc_version
+  changed_when: false
 
 - name: Find version of GCC installed
   shell: gcc --version | grep -Eo "[0-9]\.[0-9]\.[0-9]" | head -n 1
   register: installed_gcc_version
+  changed_when: false
 
 - name: Fail if GCC versions are not equal
   fail:
@@ -22,6 +24,7 @@
 - name: Find linux header value
   command: uname -r
   register: kernel_version
+  changed_when: false
 
 - name: Install debian packages
   apt:
@@ -63,3 +66,4 @@
 
 - name: Verify running "nvidia-smi" command doesn't fail
   shell: nvidia-smi
+  changed_when: false

@@ -4,5 +4,8 @@
 - name: Install Packages and NVIDIA vGPU Manager
   include_tasks: install.yml
 
+# OpenStack Nova configures and enables VF and mdev devices based on GPU types defined in nova.conf
+# These tasks have been left here as an example based on the NVIDIA docs
+# And merely prints out info regarding the PCI Bus and the NVIDIA vGPU Type based on the `vgpu_type` var
 - name: Configure vGPUs
   include_tasks: configure.yml
