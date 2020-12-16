@@ -31,11 +31,11 @@
     name: 
       "{{ vgpu_debian_packages + ['linux-headers-' + kernel_version.stdout] }}"
 
-# - name: Download vGPU Zip file containing vGPU Manager and Drivers
-#   get_url:
-#     url: "{{ vgpu_driver_url }}/{{ vgpu_zip_file }}"
-#     dest: "{{ vgpu_install_path }}"
-#     validate_certs: no
+- name: Download vGPU Zip file containing vGPU Manager and Drivers
+  get_url:
+    url: "{{ vgpu_driver_url }}/{{ vgpu_zip_file }}"
+    dest: "{{ vgpu_install_path }}"
+    validate_certs: no
 
 - name: Unzip NVIDIA Zip File
   unarchive:
@@ -44,17 +44,16 @@
     mode: 774
     creates: "{{ vgpu_install_path }}/{{ vgpu_manager_file }}"
 
-- name: get service facts
+- name: Get Service Facts
   service_facts:
   no_log: true
 
 - set_fact:
     vgpu_manager_installed: "{{ 'nvidia-vgpu-mgr.service' in ansible_facts.services }}"
 
-- name: Run vGPU Manager for KVM
+- name: Install vGPU Manager for KVM
   shell: 
-    cmd: "./{{ vgpu_manager_file }} {{ vgpu_manager_file_flags | join(' ') }}"
-    executable: /bin/sh
+    cmd: "sh ./{{ vgpu_manager_file }} {{ vgpu_manager_file_flags | join(' ') }}"
     chdir: "{{ vgpu_install_path }}"
   when : not vgpu_manager_installed
   notify: reboot handler

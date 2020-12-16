@@ -9,3 +9,4 @@
 # And merely prints out info regarding the PCI Bus and the NVIDIA vGPU Type based on the `vgpu_type` var
 - name: Configure vGPUs
   include_tasks: configure.yml
+  when: vgpu_manager_installed
