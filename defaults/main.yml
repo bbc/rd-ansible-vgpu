@@ -18,5 +18,8 @@ vgpu_manager_file_flags:
   - -s  # silent mode (say yes to options, no GUI)
   - --no-cc-version-check  # ignore mismatch between GCC versions
 vgpu_force_install: true
+vgpu_manager_service: nvidia-vgpu-mgr.service
 
+# this will display information regarding this type of vGPU such as the nvidia code (e.g. nvidia-35) and
+# the maximum number of vGPUs that can be created from a single physical GPU
 vgpu_type: T4-4C

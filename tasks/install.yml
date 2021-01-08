@@ -42,14 +42,16 @@
     src: "{{ vgpu_install_path }}/{{ vgpu_zip_file }}"
     dest: "{{ vgpu_install_path }}"
     mode: 774
+    remote_src: yes
     creates: "{{ vgpu_install_path }}/{{ vgpu_manager_file }}"
 
 - name: Get Service Facts
   service_facts:
   no_log: true
 
-- set_fact:
-    vgpu_manager_installed: "{{ 'nvidia-vgpu-mgr.service' in ansible_facts.services }}"
+- name: Set fact regarding whether vGPU Manager service is installed
+  set_fact:
+    vgpu_manager_installed: "{{ vgpu_manager_service in ansible_facts.services }}"
 
 - name: Install vGPU Manager for KVM
   shell: 
@@ -60,7 +62,7 @@
 
 - name: Check vGPU Manager Service is Started
   systemd:
-    name: nvidia-vgpu-mgr.service
+    name: "{{ vgpu_manager_service }}"
     state: started
 
 - name: Verify running "nvidia-smi" command doesn't fail
