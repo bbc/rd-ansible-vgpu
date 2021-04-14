@@ -6,14 +6,17 @@ vgpu_debian_packages:
   - build-essential
   - dkms
 
-vgpu_driver_url: http://www.os.mist.rd.bbc.co.uk/nvidia
-vpgu_driver_version: 450.89
+# Locations to fetch Driver Software
+vgpu_driver_url: http://www.os.mist.rd.bbc.co.uk/nvidia  # where is the vGPU software stored
+vgpu_zip_file: "NVIDIA-GRID-Linux-KVM-450.89-452.57.zip"  # the name of the ZIP file to download from the driver URL - will change depending on min/max version numbers
 
-vgpu_install_path: /root  # may be better to put it in /usr/local/src
-# the zip file name will change depending on the min and max version numbers
-vgpu_zip_file: NVIDIA-GRID-Linux-KVM-450.89-452.57.zip
+# Driver and vGPU Manager Names (after unzipping downloaded file)
+vpgu_driver_version: 450.89
 vgpu_driver_file: "NVIDIA-Linux-x86_64-{{ vpgu_driver_version }}-grid.run"
 vgpu_manager_file: "NVIDIA-Linux-x86_64-{{ vpgu_driver_version }}-vgpu-kvm.run"
+
+# Install Variables
+vgpu_install_path: /root  # may be better to put it in /usr/local/src
 vgpu_manager_file_flags:
   - -s  # silent mode (say yes to options, no GUI)
   - --no-cc-version-check  # ignore mismatch between GCC versions
